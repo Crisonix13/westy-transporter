@@ -1,84 +1,208 @@
 <?php
-    require './class/class_user.php';
-    $classUser = new User;
-    session_start();
+session_start();
 
-    if(isset($_POST['register'])){
-        $firstName      = $_POST['firstName'];
-        $lastName       = $_POST['lastName'];
-        $email          = $_POST['email'];
-        $mobileNumber   = $_POST['mobileNumber'];
-        $password       = $_POST['password'];
-        $governmentID   = $_FILES['governmentID'];
-        $companyID      = $_FILES['companyID'];
+// Function to handle file upload and permit addition
+function handleAddPermit() {
+    $targetDir = "uploads/";
+    $targetFile = $targetDir . basename($_FILES["permitFile"]["name"]);
+    $uploadOk = 1;
+    $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-        if(empty($firstName) || empty($lastName) || empty($email) || empty($mobileNumber) || empty($password) || empty($governmentID['name']) || empty($companyID['name'])){
-            echo "<script>alert('Please fill in all fields.');window.location.href='registration';</script>";
-            exit();
+    if ($fileType != "pdf") {
+        echo "Sorry, only PDF files are allowed.";
+        return;
+    }
+
+    if ($uploadOk && move_uploaded_file($_FILES["permitFile"]["tmp_name"], $targetFile)) {
+        $permit = [
+            'permitType' => $_POST['permitType'],
+            'permitNumber' => $_POST['permitNumber'],
+            'dateIssued' => $_POST['dateIssued'],
+            'expiryDate' => $_POST['expiryDate'],
+            'placeIssuance' => $_POST['placeIssuance'],
+            'permitFile' => $_FILES['permitFile']['name']
+        ];
+
+        $_SESSION['permits'] = $_SESSION['permits'] ?? [];
+        $_SESSION['permits'][] = $permit;
+
+        header("Location: application?step=2");
+        exit();
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
+}
+
+// Function to handle permit deletion
+function handleDeletePermit() {
+    $delete_key = $_POST['delete_key'];
+
+    if (isset($_SESSION['permits'][$delete_key])) {
+        $filename = $_SESSION['permits'][$delete_key]['permitFile'];
+        $filePath = "uploads/" . $filename;
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
         }
 
-        $governmentIDDir = 'government_id/';
-        $companyIDDir = 'company_id/';
+        unset($_SESSION['permits'][$delete_key]);
+        $_SESSION['permits'] = array_values($_SESSION['permits']);
+    }
 
-        if (!is_dir($governmentIDDir)) {
-            mkdir($governmentIDDir, 0777, true);
-        }
-        if (!is_dir($companyIDDir)) {
-            mkdir($companyIDDir, 0777, true);
-        }
+    header("Location: application?step=2");
+    exit();
+}
 
-        $governmentIDPath = $governmentIDDir . basename($governmentID['name']);
-        if (!move_uploaded_file($governmentID['tmp_name'], $governmentIDPath)) {
-            echo "<script>alert('Failed to upload government ID.');window.location.href='registration';</script>";
-            exit();
-        }
+// Function to handle product addition
+function handleAddProduct() {
+    $productName = isset($_POST['productName']) ? htmlspecialchars($_POST['productName']) : '';
 
-        $companyIDPath = $companyIDDir . basename($companyID['name']);
-        if (!move_uploaded_file($companyID['tmp_name'], $companyIDPath)) {
-            echo "<script>alert('Failed to upload company ID.');window.location.href='registration';</script>";
-            exit();
-        }
+    if (!empty($productName)) {
+        $_SESSION['products'] = $_SESSION['products'] ?? [];
+        $_SESSION['products'][] = ['productName' => $productName];
 
-        $result = $classUser->register($firstName, $lastName, $email, $mobileNumber, $password, $governmentIDPath, $companyIDPath);
-        
-        if($result) {
-            $_SESSION['registration_success'] = true;
-            header("Location: thanks");
-        }else {
-            echo "<script>alert('Registration failed. Please try again.');window.location.href='registration';</script>";
-        }
-    } elseif(isset($_POST['login'])){
-        if(isset($_POST['email']) && isset ($_POST['password'])){
-            $email      = $_POST['email'];
-            $password   = $_POST['password'];
+        header("Location: application?step=3");
+        exit();
+    } else {
+        echo "Product name cannot be empty.";
+    }
+}
 
-            $result = $classUser->login($email, $password);
+// Function to handle product deletion
+function handleDeleteProduct() {
+    $delete_key = $_POST['delete_key'];
 
-            if($result){
-                $_SESSION['user_logged_in'] = true;
-                $_SESSION['user'] = $email;
-                header("Location: index");
-            } else{
-                echo "<script>alert('Invalid login details. Please try again.');window.location.href='./login';</script>";
-            }
-        }
-    } elseif(isset($_POST['addClient'])){
-        $clientName                 = $_POST['clientName'];
-        $clientAddress              = $_POST['clientAddress'];
-        $clientTypeEstablishment    = $_POST['clientTypeEstablishment'];
-        $clientContactPerson        = $_POST['clientContactPerson'];
-        $clientContactNumber        = $_POST['clientContactNumber'];
-        $clientEmail                = $_POST['clientEmail'];
-        $clientCRS                  = $_POST['clientCRS'];
-        $clientHW                   = $_POST['clientHW'];
+    if (isset($_SESSION['products'][$delete_key])) {
+        unset($_SESSION['products'][$delete_key]);
+        $_SESSION['products'] = array_values($_SESSION['products']);
+    }
 
-        $result = $classUser->addClient($clientName, $clientAddress, $clientTypeEstablishment, $clientContactPerson, $clientContactNumber, $clientEmail, $clientCRS, $clientHW);
+    header("Location: application?step=3");
+    exit();
+}
 
-        if ($result){
-            header("Location: client");
-            exit();
-        } else{
-            echo "<script>alert('An error occurred. Please try again.');window.location.href='./client';</script>";
-        }
-    } 
+// Function to handle service addition
+function handleAddService() {
+    $serviceName = isset($_POST['serviceName']) ? htmlspecialchars($_POST['serviceName']) : '';
+
+    if (!empty($serviceName)) {
+        $_SESSION['services'] = $_SESSION['services'] ?? [];
+        $_SESSION['services'][] = ['serviceName' => $serviceName];
+
+        header("Location: application?step=3");
+        exit();
+    } else {
+        echo "Service name cannot be empty.";
+    }
+}
+
+// Function to handle service deletion
+function handleDeleteService() {
+    $delete_key = $_POST['delete_key'];
+
+    if (isset($_SESSION['services'][$delete_key])) {
+        unset($_SESSION['services'][$delete_key]);
+        $_SESSION['services'] = array_values($_SESSION['services']);
+    }
+
+    header("Location: application?step=3");
+    exit();
+}
+
+// Function to handle hazardous waste profile addition
+function handleAddHWP() {
+    $wasteType = isset($_POST['wasteType']) ? htmlspecialchars($_POST['wasteType']) : '';
+    $wasteNature = isset($_POST['wasteNature']) ? htmlspecialchars($_POST['wasteNature']) : '';
+    $wasteCatalogue = isset($_POST['wasteCatalogue']) ? htmlspecialchars($_POST['wasteCatalogue']) : '';
+    $wasteDetails = isset($_POST['wasteDetails']) ? htmlspecialchars($_POST['wasteDetails']) : '';
+    $wastePractice = isset($_POST['wastePractice']) ? htmlspecialchars($_POST['wastePractice']) : '';
+
+    if (!empty($wasteType) && !empty($wasteNature) && !empty($wasteCatalogue)) {
+        $_SESSION['wasteProfiles'] = $_SESSION['wasteProfiles'] ?? [];
+        $_SESSION['wasteProfiles'][] = [
+            'wasteType' => $wasteType,
+            'wasteNature' => $wasteNature,
+            'wasteCatalogue' => $wasteCatalogue,
+            'wasteDetails' => $wasteDetails,
+            'wastePractice' => $wastePractice
+        ];
+
+        header("Location: application?step=4");
+        exit();
+    } else {
+        echo "Waste inputs cannot be empty.";
+    }
+}
+
+// Function to handle hazardous waste profile deletion
+function handleDeleteWasteProfile() {
+    $delete_key = $_POST['delete_key'];
+
+    if (isset($_SESSION['wasteProfiles'][$delete_key])) {
+        unset($_SESSION['wasteProfiles'][$delete_key]);
+        $_SESSION['wasteProfiles'] = array_values($_SESSION['wasteProfiles']);
+    }
+
+    header("Location: application?step=4");
+    exit();
+}
+// Function to handle file upload for permits
+function handleUploadFile() {
+    $targetDir = "uploads/";
+    $targetFile = $targetDir . basename($_FILES["file"]["name"]);
+    $uploadOk = 1;
+    $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+    // Validate file type
+    if (!in_array($fileType, ["pdf", "jpg", "jpeg", "png"])) {
+        echo "Sorry, only PDF, JPG, JPEG, & PNG files are allowed.";
+        return;
+    }
+
+    // Check if file was uploaded
+    if ($uploadOk && move_uploaded_file($_FILES["file"]["tmp_name"], $targetFile)) {
+        // Successful upload, process further if needed
+        echo "File uploaded successfully!";
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
+}
+
+
+// Main switch statement
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    switch (true) {
+        case isset($_POST['addPermit']):
+            handleAddPermit();
+            break;
+        case isset($_POST['delete_permit']):
+            handleDeletePermit();
+            break;
+        case isset($_POST['addProduct']):
+            handleAddProduct();
+            break;
+        case isset($_POST['delete_product']):
+            handleDeleteProduct();
+            break;
+        case isset($_POST['addService']):
+            handleAddService();
+            break;
+        case isset($_POST['delete_service']):
+            handleDeleteService();
+            break;
+        case isset($_POST['addHWP']):
+            handleAddHWP();
+            break;
+        case isset($_POST['delete_wasteProfile']):
+            handleDeleteWasteProfile();
+            break;
+        case isset($_FILES['file']):
+            handleUploadFile();
+            break;
+        default:
+            echo "Invalid action.";
+            break;
+    }
+}
+
 ?>

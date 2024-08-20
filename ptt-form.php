@@ -1,4 +1,4 @@
-    <?php
+<?php
         session_start();
 
         if (!isset($_SESSION['user_logged_in'])){
@@ -231,154 +231,7 @@
                 <div class="card-body">
                     <div class="row align-items-center my-2">
                         <div class="col-xl-6 col-lg-6 col-md-6">
-                  <?php
-    session_start();
-
-    if (!isset($_SESSION['user_logged_in'])){
-        header('Location: login');
-        exit();
-    }
-
-    require 'components/header.php';
-    require 'components/db.php';
-    include 'components/navbar.php';
-
-    $userQuery = "SELECT * FROM user ORDER BY userID DESC";
-    $userResult = mysqli_query($conn, $userQuery);
-
-    $users = [];
-    
-    while($row = mysqli_fetch_assoc($userResult)){
-        $userID       = $row['userID'];
-        $userFname    = $row['userFname'];
-        $userLname    = $row['userLname'];
-    
-        $userType = isset($row['userType']) && !is_null($row['userType']) ? $row['userType'] : "N/A";
-    
-        switch ($row['userStatus']) {
-            case 0:
-                $userStatus = "In Progress";
-                break;
-            case 1:
-                $userStatus = "Approved";
-                break;
-            case 2:
-                $userStatus = "Rejected";
-                break;
-            default:
-                $userStatus = "Unknown"; 
-        }
-    
-        $users[] = [
-            'userID' => $userID,
-            'userFname' => $userFname,
-            'userLname' => $userLname,
-            'userType' => $userType,
-            'userStatus' => $userStatus
-        ];
-    }
-?>
-<style>
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-        }
-</style>
-<div class="container w-75">
-    <div class="d-flex justify-content-center">
-        <h1 class="fw-bold my-3 me-2">Employees</h1> 
-    </div>
-    <table class="table table-responsive table-hover">
-        <thead class="text-center">
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Department</th>
-                <th scope="col">Status</th>
-                <th scope="col">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (empty($users)): ?>
-                <tr>
-                    <td colspan="5" class="text-center">No users found.</td>
-                </tr>
-            <?php else: ?>
-                <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td class="text-center"><?php echo $user['userFname'] . " " . $user['userLname']; ?></td>
-                        <td class="text-center"><?php echo $user['userType']; ?></td>
-                        <td class="text-center"><?php echo $user['userStatus']; ?></td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center align-items-center">
-                                <!-- View Button -->
-                                <div class="text-center me-1">
-                                    <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['userID']; ?>">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </div>
-                                    </button>
-                                </div>
-                                <!-- Edit Button -->
-                                <div class="text-center">
-                                    <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editUserModal<?php echo $user['userID']; ?>">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Edit Modal -->
-                    <div class="modal fade" id="editUserModal<?php echo $user['userID']; ?>" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="functions.php" method="post">
-                                        <div class="row align-items-center my-2">
-                                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                                <label for="clientName" class="form-label">Status</label>
-                                            </div>
-                                            <div class="col-xl-9 col-lg-9 col-md-9">
-                                                <select class="input-group form-control" id="inputGroupSelect01">
-                                                    <option selected>Select option</option>
-                                                    <option value="1">Approve</option>
-                                                    <option value="2">Reject</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center my-2">
-                                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                                <label for="clientName" class="form-label">Department</label>
-                                            </div>
-                                            <div class="col-xl-9 col-lg-9 col-md-9">
-                                                <select class="input-group form-control" id="inputGroupSelect01">
-                                                    <option selected >Select option</option>
-                                                    <option value="ASD">ASD</option>
-                                                    <option value="LSD">LSD</option>
-                                                    <option value="Database">Database</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="submit" name="editUser" class="btn btn-success w-25">Edit</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>         <h1 class="fw-bold my-3 me-2">Geolocation</h1>
+             <h1 class="fw-bold my-3 me-2">Geolocation</h1>
                         </div>
                     </div>
                     <div class="row align-items-center my-2">
@@ -443,83 +296,46 @@
                 </div>
             </div>
         </div>
-    <?php elseif ($currentStep === 3): ?>
-        <div class="container w-75 my-5">
-            <div class="card my-3">
-                <div class="card-body">
-                    <div class="row align-items-center my-2">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <h1 class="fw-bold my-3 me-2">Generator Information</h1>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6 text-end">
-                        <button class="btn text-white" style="background-color:#253E23" data-bs-toggle="modal" data-bs-target="#addClientModal" role="button">
-                        <i class="fa-solid fa-plus me-1"></i>Add More
-                        </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row align-items-center my-2">
-                        <div class="col-xl-12 col-lg-12 col-md-12">
-                            <table class="table table-responsive table-hover">
-                                <thead class="text-center">
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Order Sequence</th>
-                                        <th scope="col">Transporter ID</th>
-                                        <th scope="col">Company</th>
-                                        <th scope="col">Expiry Date</th>
-                                        <th scope="col">Actions</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-center">Hello</td>
-                                        <td class="text-center">Hello</td>
-                                        <td class="text-center">Hello</td>
-                                        <td class="text-center">Hello</td>
-                                        <td class="text-center">Hello</td>
-                                        <td class="text-center">
-                                            <div class="text-center me-1">
-                                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#viewClientModal<?php echo $clientID; ?>">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </div>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+        <?php elseif ($currentStep === 3): ?>
+    <div class="container w-75">
+        <div class="card my-3">
+            <div class="card-body">
+                <h1 class="fw-bold my-3 me-2">Generator Information</h1>
+                <div class="row align-items-center my-2">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <label for="clientName" class="form-label fw-bold">Transporter</label>
+                        <select class="form-control" id="clientName">
+                            <option value="">Select option</option>
+                            <option value="mitsubishi_utility_vehicle">Mitsubishi Utility Vehicle</option>
+                            <option value="isuzu_closed_van">ISUZU Closed Van</option>
+                            <option value="isuzu_aluminum_van">ISUZU Aluminum Van</option>
+                            <option value="isuzu_wing_van">ISUZU Wing Van</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
-    <?php elseif ($currentStep === 4): ?>
-        <div class="container w-75">
-            <div class="card my-3">
-                <div class="card-body">
-                    <h1 class="fw-bold my-3 me-2">TSD Facility</h1>
-                    <div class="row align-items-center my-2">
-                        <div class="col-xl-12 col-lg-12 col-md-12">
+    </div>  
+        <?php elseif ($currentStep === 4): ?>
+    <div class="container w-75">
+        <div class="card my-3">
+            <div class="card-body">
+                <h1 class="fw-bold my-3 me-2">TSD Facility</h1>
+                <div class="row align-items-center my-2">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
                         <label for="clientName" class="form-label fw-bold">TSD Facility</label>
-                        <select class="form-control">
+                        <select class="form-control" id="clientName">
                             <option value="">Select option</option>
-                            <?php
-                                $clientQuery = "SELECT * FROM client WHERE isActive = 1 AND clientStatus = 'Approved'";
-                                $clientResult = mysqli_query($conn, $clientQuery);
-                                
-                                while($row = mysqli_fetch_assoc($clientResult)) {
-                                    $clientID   = $row['clientID'];
-                                    $clientName = $row['clientName'];
-
-                                    echo "<option value=\"$clientID\">$clientName</option>";
-                                }
-                            ?>
+                            <option value="egc_enterprises">EGC Enterprises</option>
+                            <option value="maya_med_waste_corporation">Maya Med Waste Corporation</option>
+                            <option value="all_waste_service_inc">All Waste Service Inc.</option>
                         </select>
-                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
     <?php elseif ($currentStep === 5): ?>
         <div class="container w-75 my-5">
             <div class="card my-3">
@@ -586,3 +402,4 @@
         </div>
     <?php endif; ?>
 </form>
+
